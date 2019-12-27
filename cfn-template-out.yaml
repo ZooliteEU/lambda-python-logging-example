@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Zoolite - Lambda test application
+Parameters:
+  EnvironmentParam:
+    Type: String
+    Default: test
+Globals:
+  Function:
+    Runtime: python3.6
+    Timeout: '60'
+    MemorySize: '128'
+Resources:
+  LambdaRole1:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName:
+        Fn::Sub: zoolite-demo-app-${EnvironmentParam}
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+  LambdaFunction1:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName:
+        Fn::Sub: zoolite-serverless-demo-${EnvironmentParam}-cf
+      Description: Zoolite function for demo purposes
+      Environment:
+        Variables:
+          DEBUG: 'true'
+      Handler: function.handler
+      CodeUri: s3://lambda-source-440357826049/zoolite-serverless-demo/c42b9016b06695afd5554333a7571550
+      Runtime: python3.6
+      Timeout: 60
+      MemorySize: 128
+      Role:
+        Fn::GetAtt:
+        - LambdaRole1
+        - Arn
+  Loggroup1:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: /aws/lambda/zoolite-serverless-demo-${EnvironmentParam}-cf
+      RetentionInDays: 7

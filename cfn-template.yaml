@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: 'AWS::Serverless-2016-10-31'
+Description: "Zoolite - Lambda test application"
+
+Parameters:
+  EnvironmentParam:
+    Type: String
+    Default: test
+
+
+Globals:
+  Function:
+    Runtime: "python3.6"
+    Timeout: "60"
+    MemorySize: "128"
+
+Resources:
+
+  # -- Lambda function #1 resources  -------------------------------------------
+  LambdaRole1:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "zoolite-demo-app-${EnvironmentParam}"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  LambdaFunction1:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "zoolite-serverless-demo-${EnvironmentParam}-cf"
+      Description: "Zoolite function for demo purposes"
+      Environment:
+        Variables:
+          DEBUG: "true"
+      Handler: function.handler
+      CodeUri: src
+      Runtime: python3.6
+      Timeout: 60
+      MemorySize: 128
+      Role: !GetAtt LambdaRole1.Arn
+
+  Loggroup1:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/zoolite-serverless-demo-${EnvironmentParam}-cf"
+      RetentionInDays: 7
