@@ -13,7 +13,7 @@ AWS_REGION=eu-west-1
 package:  ## Package Lambda function and SAM template
 	sam package --template-file $(CFN_TEMPLATE) --s3-bucket $(S3_BUCKET) --s3-prefix $(S3_PREFIX) --output-template-file $(CFN_TEMPLATE_OUT)
 
-deploy:  ## Deploy SAM template
+deploy: package  ## Deploy SAM template
 	sam deploy --stack-name $(CFN_STACK_NAME) --template-file $(CFN_TEMPLATE_OUT) --capabilities CAPABILITY_NAMED_IAM --region $(AWS_REGION)
 
 help:

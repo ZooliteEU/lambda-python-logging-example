@@ -20,10 +20,11 @@ class JSONFormatter(logging.Formatter):
     """ JSON formatter """
     def format(self, record):
         """ Format event info to json."""
+        string_formatted_time = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime(record.created))
         obj = {}
         obj["message"] = record.msg
         obj["level"] = record.levelname
-        obj["time"] = time.ctime(record.created)
+        obj["time"] = f"{string_formatted_time}.{record.msecs:3.0f}Z"
         obj["epoch_time"] = record.created
         if hasattr(record, "custom_logging"):
             for key, value in record.custom_logging.items():
@@ -33,7 +34,8 @@ class JSONFormatter(logging.Formatter):
 
 def setup_logger(function):
     """ Create logging object."""
-    logger = logging.getLogger()
+    logger = logging.getLogger(__name__)
+    logger.propagate = False  # remove default logger
 
     handler = logging.StreamHandler()
     formatter = JSONFormatter()
